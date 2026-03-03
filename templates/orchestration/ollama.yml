@@ -1,0 +1,54 @@
+---
+# Ollama Routing Configuration
+# All @mention triggers listed below are routed exclusively to the local Ollama instance.
+# No external AI providers (Copilot, Claude, ChatGPT, etc.) are used.
+
+name: OllamaRouter
+version: "1.0"
+description: >
+  Routes every @mention request directly to the local Ollama server.
+  No external AI provider is contacted under any circumstances.
+
+# ── Mention triggers ────────────────────────────────────────────────────────
+# When any of these handles appear in a prompt or comment, the request is
+# intercepted and forwarded to Ollama instead of the default provider.
+mention_triggers:
+  - "@ollama"
+  - "@copilot"
+  - "@lucidia"
+  - "@blackboxprogramming"
+
+# ── Ollama endpoint ─────────────────────────────────────────────────────────
+ollama:
+  endpoint: "http://localhost:11434"
+  api_path: "/api/generate"
+  health_path: "/api/tags"
+  default_model: "llama3"
+  timeout_seconds: 120
+  stream: true
+
+# ── Routing policy ──────────────────────────────────────────────────────────
+routing:
+  provider: ollama          # sole provider — never delegate to any external service
+  fallback_provider: null   # no fallback; fail loudly rather than leak to the cloud
+  external_providers_blocked:
+    - openai
+    - anthropic
+    - github-copilot
+    - google-gemini
+    - azure-openai
+
+# ── Request transformation ──────────────────────────────────────────────────
+request_transform:
+  strip_mention_prefix: true   # remove "@handle " before forwarding to Ollama
+  preserve_context: true       # include conversation history in the Ollama payload
+
+# ── Response handling ───────────────────────────────────────────────────────
+response:
+  source_label: "Ollama (local)"
+  include_model_info: true
+
+metadata:
+  icon: "🦙"
+  signal: "LOCAL"
+  hardware: "user-owned"

@@ -88,3 +88,22 @@ integration:
       - slack
       - email
       - github_notifications
+
+# ── Ollama mention routing ───────────────────────────────────────────────────
+# Any @mention listed here bypasses all external AI providers and is sent
+# directly to the local Ollama instance defined in ollama.yml.
+ollama_routing:
+  enabled: true
+  config: "ollama.yml"
+  mention_triggers:
+    - "@ollama"
+    - "@copilot"
+    - "@lucidia"
+    - "@blackboxprogramming"
+  policy:
+    provider: ollama
+    external_providers_blocked: true
+    description: >
+      All requests tagged with the above @mentions are routed exclusively to
+      the local Ollama server. No cloud AI service (Copilot, Claude, ChatGPT,
+      Gemini, etc.) is contacted.
